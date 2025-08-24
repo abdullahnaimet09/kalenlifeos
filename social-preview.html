@@ -5,113 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalen Life OS - Social Preview</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            width: 1200px;
-            height: 630px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            padding: 40px 20px;
         }
         
-        .container {
+        .preview-container {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
             text-align: center;
-            color: white;
-            padding: 60px;
-            max-width: 1000px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            border-radius: 20px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        h1 {
             font-size: 48px;
-            font-weight: 700;
+            font-weight: 600;
+            color: #1f2937;
             margin-bottom: 20px;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            line-height: 1.1;
         }
         
-        .tagline {
-            font-size: 28px;
-            font-weight: 500;
+        .subtitle {
+            font-size: 24px;
+            color: #6b7280;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 30px;
             margin-bottom: 30px;
-            opacity: 0.95;
-            line-height: 1.3;
         }
         
-        .features {
+        .card-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .card-subtitle {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        
+        .author {
+            font-size: 16px;
+            color: #9ca3af;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 15px;
+        }
+        
+        .author strong {
+            color: #1f2937;
+        }
+        
+        .users {
             display: flex;
             justify-content: center;
-            gap: 40px;
-            margin-top: 40px;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
         }
         
-        .feature {
-            background: rgba(255,255,255,0.15);
-            padding: 20px 30px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .feature-title {
-            font-size: 18px;
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
             font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .feature-desc {
             font-size: 14px;
-            opacity: 0.9;
         }
         
-        .url {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-            font-weight: 500;
-            opacity: 0.8;
-        }
-        
-        .notion-badge {
-            position: absolute;
-            top: 40px;
-            right: 40px;
-            background: rgba(255,255,255,0.9);
-            color: #000;
+        .user-count {
+            background: #f3f4f6;
+            color: #6b7280;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 500;
+        }
+        
+        .stats {
+            font-size: 16px;
+            color: #6b7280;
         }
     </style>
 </head>
 <body>
-    <div class="notion-badge">Powered by Notion</div>
-    
-    <div class="container">
-        <div class="logo">Kalen Life OS</div>
-        <div class="tagline">Build Your Ideal Life with the Most Powerful<br>Life Operating System</div>
+    <div class="preview-container">
+        <div class="logo">KL</div>
         
-        <div class="features">
-            <div class="feature">
-                <div class="feature-title">Pillars</div>
-                <div class="feature-desc">Life Foundation</div>
-            </div>
-            <div class="feature">
-                <div class="feature-title">Pipelines</div>
-                <div class="feature-desc">Workflow Systems</div>
-            </div>
-            <div class="feature">
-                <div class="feature-title">Vaults</div>
-                <div class="feature-desc">Knowledge Base</div>
-            </div>
+        <h1>Build Your Ideal Life</h1>
+        <p class="subtitle">Leverage Notion's most powerful Life Operating System to build your ideal life</p>
+        
+        <div class="card">
+            <div class="card-title">Kalen Life Operating System</div>
+            <div class="card-subtitle">Built upon Pillars, Pipelines & Vaults</div>
+            <div class="author">Presented by <strong>Kalen Frost</strong></div>
         </div>
+        
+        <div class="users">
+            <div class="user-avatar">A</div>
+            <div class="user-avatar">B</div>
+            <div class="user-avatar">C</div>
+            <div class="user-avatar">D</div>
+            <div class="user-avatar">E</div>
+            <div class="user-avatar">F</div>
+            <div class="user-count">+147</div>
+        </div>
+        
+        <div class="stats">150+ Solopreneurs Successfully Transformed</div>
     </div>
-    
-    <div class="url">www.kalenlifeos.app</div>
 </body>
 </html>
