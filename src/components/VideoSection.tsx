@@ -16,18 +16,15 @@ const VideoSection = () => {
         <div className="relative max-w-4xl mx-auto mb-12 sm:mb-16">
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl bg-gradient-to-br from-orange-100 to-amber-100 p-1 sm:p-2">
             <div className="aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black">
-              {/* Placeholder for video embed */}
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-                <div className="text-center px-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </div>
-                  <p className="text-white/80 text-base sm:text-lg">Video will be embedded here</p>
-                  <p className="text-white/60 text-xs sm:text-sm mt-2">Replace this with your video embed code</p>
-                </div>
-              </div>
+              {/* YouTube Video Embed */}
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/5q5HyYwTN8k?rel=0&modestbranding=1&showinfo=0&vq=hd720"
+                title="Kalen Life OS v2 Demo"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
           
