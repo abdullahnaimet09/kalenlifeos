@@ -1,0 +1,11 @@
+import HeroSection from "@/components/HeroSection";
+
+const PreviewPage = () => {
+  return (
+    <div className="min-h-screen bg-background">
+      <HeroSection />
+    </div>
+  );
+};
+
+export default PreviewPage;
