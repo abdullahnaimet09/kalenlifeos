@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useTrafficAnalytics, TrafficStats } from "@/hooks/useTrafficAnalytics";
 import { 
   Search, 
@@ -18,21 +20,28 @@ import {
   ExternalLink,
   BarChart3,
   Activity,
-  Calendar,
-  Clock,
+  Calendar as CalendarIcon,
   Filter,
-  Download,
   RefreshCw,
   Eye,
   Target,
-  Zap
+  Zap,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Youtube,
+  MessageCircle
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Cell, Pie } from 'recharts';
+import { format } from "date-fns";
 
 const TrafficAnalyticsDashboard: React.FC = () => {
   const { currentTraffic, getTrafficStats, createAffiliateLink, affiliateLinks } = useTrafficAnalytics();
   const [stats, setStats] = useState<TrafficStats | null>(null);
-  const [dateRange, setDateRange] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [dateRange, setDateRange] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily');
+  const [customStartDate, setCustomStartDate] = useState<Date | undefined>(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
+  const [customEndDate, setCustomEndDate] = useState<Date | undefined>(new Date());
   const [selectedAffiliate, setSelectedAffiliate] = useState<string>('');
   const [newAffiliateName, setNewAffiliateName] = useState<string>('');
   const [isCreatingAffiliate, setIsCreatingAffiliate] = useState(false);
@@ -60,6 +69,20 @@ const TrafficAnalyticsDashboard: React.FC = () => {
     }
   };
 
+  const getPlatformIcon = (platform: string) => {
+    const platformLower = platform.toLowerCase();
+    if (platformLower.includes('facebook')) return <Facebook className="h-4 w-4 text-blue-600" />;
+    if (platformLower.includes('twitter') || platformLower.includes('x.com')) return <Twitter className="h-4 w-4 text-blue-400" />;
+    if (platformLower.includes('instagram')) return <Instagram className="h-4 w-4 text-pink-500" />;
+    if (platformLower.includes('linkedin')) return <Linkedin className="h-4 w-4 text-blue-700" />;
+    if (platformLower.includes('youtube')) return <Youtube className="h-4 w-4 text-red-600" />;
+    if (platformLower.includes('whatsapp')) return <MessageCircle className="h-4 w-4 text-green-500" />;
+    if (platformLower.includes('telegram')) return <MessageCircle className="h-4 w-4 text-blue-500" />;
+    if (platformLower.includes('google')) return <Search className="h-4 w-4 text-blue-500" />;
+    if (platformLower.includes('bing')) return <Search className="h-4 w-4 text-blue-600" />;
+    return <Globe className="h-4 w-4" />;
+  };
+
   const getSourceColor = (type: string) => {
     switch (type) {
       case 'search': return 'bg-blue-500';
@@ -84,7 +107,17 @@ const TrafficAnalyticsDashboard: React.FC = () => {
   const getChartData = () => {
     if (!stats) return [];
     
-    const data = stats.dateWiseStats[dateRange];
+    let data;
+    if (dateRange === 'custom' && customStartDate && customEndDate) {
+      // Filter data for custom date range
+      data = stats.dateWiseStats.daily.filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate >= customStartDate && itemDate <= customEndDate;
+      });
+    } else {
+      data = stats.dateWiseStats[dateRange];
+    }
+
     return data.map(item => ({
       name: dateRange === 'daily' ? item.date : dateRange === 'weekly' ? item.week : item.month,
       visits: item.visits,
@@ -116,7 +149,27 @@ const TrafficAnalyticsDashboard: React.FC = () => {
         visits: count
       }))
       .sort((a, b) => b.visits - a.visits)
-      .slice(0, 10);
+      .slice(0, 15);
+  };
+
+  const getSearchEngineData = () => {
+    if (!stats) return [];
+    
+    return Object.entries(stats.searchEngineBreakdown)
+      .map(([engine, count]) => ({
+        name: engine,
+        visits: count
+      }))
+      .sort((a, b) => b.visits - a.visits);
+  };
+
+  const getSocialPlatformData = () => {
+    if (!stats) return [];
+    
+    return stats.topSocialPlatforms.map(platform => ({
+      name: platform.platform,
+      visits: platform.count
+    }));
   };
 
   if (!stats) {
@@ -134,9 +187,9 @@ const TrafficAnalyticsDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Enhanced Traffic Analytics</h1>
+          <h1 className="text-3xl font-bold">Traffic Analytics Dashboard</h1>
           <p className="text-muted-foreground">
-            Comprehensive traffic source tracking with date-wise analytics
+            Real-time traffic source tracking and affiliate performance
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -256,8 +309,7 @@ const TrafficAnalyticsDashboard: React.FC = () => {
       <Tabs defaultValue="trends" className="space-y-4">
         <TabsList>
           <TabsTrigger value="trends">Traffic Trends</TabsTrigger>
-          <TabsTrigger value="sources">Source Breakdown</TabsTrigger>
-          <TabsTrigger value="platforms">Platform Analytics</TabsTrigger>
+          <TabsTrigger value="platforms">Platform Breakdown</TabsTrigger>
           <TabsTrigger value="affiliates">Affiliate Management</TabsTrigger>
         </TabsList>
 
@@ -267,7 +319,7 @@ const TrafficAnalyticsDashboard: React.FC = () => {
               <CardTitle>Traffic Trends Over Time</CardTitle>
               <CardDescription>Visualize traffic patterns by date range</CardDescription>
               <div className="flex items-center gap-4 mt-4">
-                <Select value={dateRange} onValueChange={(value: 'daily' | 'weekly' | 'monthly') => setDateRange(value)}>
+                <Select value={dateRange} onValueChange={(value: 'daily' | 'weekly' | 'monthly' | 'custom') => setDateRange(value)}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -275,8 +327,47 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                     <SelectItem value="daily">Daily</SelectItem>
                     <SelectItem value="weekly">Weekly</SelectItem>
                     <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="custom">Custom Range</SelectItem>
                   </SelectContent>
                 </Select>
+
+                {dateRange === 'custom' && (
+                  <div className="flex items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <CalendarIcon className="h-4 w-4 mr-2" />
+                          {customStartDate ? format(customStartDate, "PPP") : "Start date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={customStartDate}
+                          onSelect={setCustomStartDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <span>to</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <CalendarIcon className="h-4 w-4 mr-2" />
+                          {customEndDate ? format(customEndDate, "PPP") : "End date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={customEndDate}
+                          onSelect={setCustomEndDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -287,19 +378,17 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="visits" stroke="#8884d8" strokeWidth={2} />
-                    <Line type="monotone" dataKey="search" stroke="#0088FE" strokeWidth={2} />
-                    <Line type="monotone" dataKey="social" stroke="#00C49F" strokeWidth={2} />
-                    <Line type="monotone" dataKey="direct" stroke="#FFBB28" strokeWidth={2} />
-                    <Line type="monotone" dataKey="affiliate" stroke="#FF8042" strokeWidth={2} />
+                    <Line type="monotone" dataKey="visits" stroke="#8884d8" strokeWidth={2} name="Total Visits" />
+                    <Line type="monotone" dataKey="search" stroke="#0088FE" strokeWidth={2} name="Search" />
+                    <Line type="monotone" dataKey="social" stroke="#00C49F" strokeWidth={2} name="Social" />
+                    <Line type="monotone" dataKey="direct" stroke="#FFBB28" strokeWidth={2} name="Direct" />
+                    <Line type="monotone" dataKey="affiliate" stroke="#FF8042" strokeWidth={2} name="Affiliate" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="sources" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -340,10 +429,10 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                 <div className="space-y-4">
                   {stats.topSources.map((source, index) => (
                     <div key={source.source} className="flex items-center justify-between">
-                                             <div className="flex items-center gap-3">
-                         <Badge variant="outline" className="text-xs">#{index + 1}</Badge>
-                         <span className="font-medium">{source.source}</span>
-                       </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="outline" className="text-xs">#{index + 1}</Badge>
+                        <span className="font-medium">{source.source}</span>
+                      </div>
                       <div className="flex items-center gap-4">
                         <span className="text-sm text-muted-foreground">
                           {source.count} visits
@@ -367,18 +456,18 @@ const TrafficAnalyticsDashboard: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Platform Performance</CardTitle>
-                <CardDescription>Traffic from different platforms</CardDescription>
+                <CardTitle>Search Engine Performance</CardTitle>
+                <CardDescription>Traffic from specific search engines</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={getPlatformChartData()}>
+                    <BarChart data={getSearchEngineData()}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="visits" fill="#8884d8" />
+                      <Bar dataKey="visits" fill="#0088FE" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -387,33 +476,20 @@ const TrafficAnalyticsDashboard: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Search Engine Breakdown</CardTitle>
-                <CardDescription>Traffic from organic search</CardDescription>
+                <CardTitle>Social Media Platform Performance</CardTitle>
+                <CardDescription>Traffic from specific social platforms</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {stats.topSearchEngines.length > 0 ? (
-                    stats.topSearchEngines.map((engine, index) => (
-                      <div key={engine.engine} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Search className="h-4 w-4 text-blue-500" />
-                          <span className="font-medium">{engine.engine}</span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-sm text-muted-foreground">
-                            {engine.count} visits
-                          </span>
-                          <Badge variant="secondary">
-                            {((engine.count / stats.sources.search) * 100).toFixed(1)}%
-                          </Badge>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-center py-8">
-                      No search engine traffic yet
-                    </p>
-                  )}
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={getSocialPlatformData()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="visits" fill="#00C49F" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
@@ -421,33 +497,48 @@ const TrafficAnalyticsDashboard: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Social Media Platforms</CardTitle>
-              <CardDescription>Traffic from social media platforms</CardDescription>
+              <CardTitle>Detailed Platform Breakdown</CardTitle>
+              <CardDescription>Explicit traffic from each platform</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {stats.topSocialPlatforms.length > 0 ? (
-                  stats.topSocialPlatforms.map((platform, index) => (
-                    <div key={platform.platform} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Share2 className="h-4 w-4 text-green-500" />
-                        <span className="font-medium">{platform.platform}</span>
+              <div className="space-y-6">
+                {/* Search Engines */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Search className="h-4 w-4 text-blue-500" />
+                    Search Engines
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {getSearchEngineData().map((engine) => (
+                      <div key={engine.name} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-2">
+                          {getPlatformIcon(engine.name)}
+                          <span className="font-medium">{engine.name}</span>
+                        </div>
+                        <Badge variant="secondary">{engine.visits} visits</Badge>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-muted-foreground">
-                          {platform.count} visits
-                        </span>
-                        <Badge variant="secondary">
-                          {((platform.count / stats.sources.social) * 100).toFixed(1)}%
-                        </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Social Platforms */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Share2 className="h-4 w-4 text-green-500" />
+                    Social Media Platforms
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {getSocialPlatformData().map((platform) => (
+                      <div key={platform.name} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-2">
+                          {getPlatformIcon(platform.name)}
+                          <span className="font-medium">{platform.name}</span>
+                        </div>
+                        <Badge variant="secondary">{platform.visits} visits</Badge>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground text-center py-8">
-                    No social media traffic yet
-                  </p>
-                )}
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

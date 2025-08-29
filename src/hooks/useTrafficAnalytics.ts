@@ -82,174 +82,59 @@ export const useTrafficAnalytics = () => {
   const [trafficHistory, setTrafficHistory] = useState<TrafficSource[]>([]);
   const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
 
-  // Enhanced search engine detection
-  const detectSearchEngine = useCallback((referrer: string): { engine: string; term?: string } | null => {
-    if (!referrer) return null;
-
-    const url = new URL(referrer);
-    const hostname = url.hostname.toLowerCase();
-
-    // Google
-    if (hostname.includes('google')) {
-      const term = url.searchParams.get('q') || url.searchParams.get('query');
-      return { engine: 'Google', term };
-    }
-
-    // Bing
-    if (hostname.includes('bing')) {
-      const term = url.searchParams.get('q');
-      return { engine: 'Bing', term };
-    }
-
-    // Yahoo
-    if (hostname.includes('yahoo')) {
-      const term = url.searchParams.get('p') || url.searchParams.get('q');
-      return { engine: 'Yahoo', term };
-    }
-
-    // DuckDuckGo
-    if (hostname.includes('duckduckgo')) {
-      const term = url.searchParams.get('q');
-      return { engine: 'DuckDuckGo', term };
-    }
-
-    // Baidu
-    if (hostname.includes('baidu')) {
-      const term = url.searchParams.get('wd');
-      return { engine: 'Baidu', term };
-    }
-
-    // Yandex
-    if (hostname.includes('yandex')) {
-      const term = url.searchParams.get('text');
-      return { engine: 'Yandex', term };
-    }
-
-    // Ecosia
-    if (hostname.includes('ecosia')) {
-      const term = url.searchParams.get('q');
-      return { engine: 'Ecosia', term };
-    }
-
-    // Qwant
-    if (hostname.includes('qwant')) {
-      const term = url.searchParams.get('q');
-      return { engine: 'Qwant', term };
-    }
-
-    return null;
-  }, []);
-
-  // Enhanced social media platform detection
-  const detectSocialPlatform = useCallback((referrer: string): { platform: string; content?: string } | null => {
-    if (!referrer) return null;
-
-    const url = new URL(referrer);
-    const hostname = url.hostname.toLowerCase();
-
-    // Facebook
-    if (hostname.includes('facebook') || hostname.includes('fb.com')) {
-      return { platform: 'Facebook' };
-    }
-
-    // Twitter/X
-    if (hostname.includes('twitter') || hostname.includes('x.com')) {
-      return { platform: 'Twitter/X' };
-    }
-
-    // Instagram
-    if (hostname.includes('instagram')) {
-      return { platform: 'Instagram' };
-    }
-
-    // LinkedIn
-    if (hostname.includes('linkedin')) {
-      return { platform: 'LinkedIn' };
-    }
-
-    // YouTube
-    if (hostname.includes('youtube') || hostname.includes('youtu.be')) {
-      return { platform: 'YouTube' };
-    }
-
-    // TikTok
-    if (hostname.includes('tiktok')) {
-      return { platform: 'TikTok' };
-    }
-
-    // Pinterest
-    if (hostname.includes('pinterest')) {
-      return { platform: 'Pinterest' };
-    }
-
-    // Reddit
-    if (hostname.includes('reddit')) {
-      return { platform: 'Reddit' };
-    }
-
-    // WhatsApp
-    if (hostname.includes('whatsapp')) {
-      return { platform: 'WhatsApp' };
-    }
-
-    // Telegram
-    if (hostname.includes('t.me') || hostname.includes('telegram')) {
-      return { platform: 'Telegram' };
-    }
-
-    // Snapchat
-    if (hostname.includes('snapchat')) {
-      return { platform: 'Snapchat' };
-    }
-
-    // Discord
-    if (hostname.includes('discord')) {
-      return { platform: 'Discord' };
-    }
-
-    // Twitch
-    if (hostname.includes('twitch')) {
-      return { platform: 'Twitch' };
-    }
-
-    // Medium
-    if (hostname.includes('medium')) {
-      return { platform: 'Medium' };
-    }
-
-    // Quora
-    if (hostname.includes('quora')) {
-      return { platform: 'Quora' };
-    }
-
-    return null;
-  }, []);
-
-  // Enhanced affiliate link detection
-  const detectAffiliateLink = useCallback((url: string): string | null => {
-    const urlParams = new URLSearchParams(window.location.search);
+  const detectSearchEngine = (referrer: string): string | null => {
+    const lowerReferrer = referrer.toLowerCase();
     
-    // Check for custom affiliate parameter first
-    const affiliateId = urlParams.get('affiliate_id') || urlParams.get('aff');
+    if (lowerReferrer.includes('google.com') || lowerReferrer.includes('google.')) return 'Google';
+    if (lowerReferrer.includes('bing.com') || lowerReferrer.includes('bing.')) return 'Bing';
+    if (lowerReferrer.includes('yahoo.com') || lowerReferrer.includes('yahoo.')) return 'Yahoo';
+    if (lowerReferrer.includes('duckduckgo.com') || lowerReferrer.includes('duckduckgo.')) return 'DuckDuckGo';
+    if (lowerReferrer.includes('baidu.com') || lowerReferrer.includes('baidu.')) return 'Baidu';
+    if (lowerReferrer.includes('yandex.com') || lowerReferrer.includes('yandex.')) return 'Yandex';
+    if (lowerReferrer.includes('ecosia.org') || lowerReferrer.includes('ecosia.')) return 'Ecosia';
+    if (lowerReferrer.includes('qwant.com') || lowerReferrer.includes('qwant.')) return 'Qwant';
     
-    if (affiliateId) {
-      return affiliateId;
-    }
+    return null;
+  };
 
-    // Check for other common affiliate parameters
-    const affiliateParams = [
-      'a', 'ref', 'ref_id', 'partner', 'campaign', 'source'
-    ];
+  const detectSocialPlatform = (referrer: string): string | null => {
+    const lowerReferrer = referrer.toLowerCase();
+    
+    if (lowerReferrer.includes('facebook.com') || lowerReferrer.includes('fb.com') || lowerReferrer.includes('fb.me')) return 'Facebook';
+    if (lowerReferrer.includes('twitter.com') || lowerReferrer.includes('x.com') || lowerReferrer.includes('t.co')) return 'Twitter/X';
+    if (lowerReferrer.includes('instagram.com') || lowerReferrer.includes('ig.me')) return 'Instagram';
+    if (lowerReferrer.includes('linkedin.com') || lowerReferrer.includes('lnkd.in')) return 'LinkedIn';
+    if (lowerReferrer.includes('youtube.com') || lowerReferrer.includes('youtu.be')) return 'YouTube';
+    if (lowerReferrer.includes('tiktok.com') || lowerReferrer.includes('vm.tiktok.com')) return 'TikTok';
+    if (lowerReferrer.includes('pinterest.com') || lowerReferrer.includes('pin.it')) return 'Pinterest';
+    if (lowerReferrer.includes('reddit.com') || lowerReferrer.includes('redd.it')) return 'Reddit';
+    if (lowerReferrer.includes('whatsapp.com') || lowerReferrer.includes('wa.me')) return 'WhatsApp';
+    if (lowerReferrer.includes('telegram.me') || lowerReferrer.includes('t.me')) return 'Telegram';
+    if (lowerReferrer.includes('snapchat.com') || lowerReferrer.includes('snap.com')) return 'Snapchat';
+    if (lowerReferrer.includes('discord.com') || lowerReferrer.includes('discord.gg')) return 'Discord';
+    if (lowerReferrer.includes('twitch.tv')) return 'Twitch';
+    if (lowerReferrer.includes('medium.com')) return 'Medium';
+    if (lowerReferrer.includes('quora.com')) return 'Quora';
+    
+    return null;
+  };
 
-    for (const param of affiliateParams) {
-      const value = urlParams.get(param);
-      if (value) {
-        return value;
+  const detectAffiliateLink = (url: string): string | null => {
+    const urlParams = new URLSearchParams(url.split('?')[1] || '');
+    
+    // Check for affiliate parameters
+    const affiliateId = urlParams.get('affiliate_id') || urlParams.get('aff') || urlParams.get('ref');
+    
+    // Check for Gumroad affiliate link pattern
+    if (url.includes('gumroad.com/a/') && url.includes('/')) {
+      const gumroadMatch = url.match(/gumroad\.com\/a\/([^\/]+)/);
+      if (gumroadMatch) {
+        return gumroadMatch[1] || 'gumroad';
       }
     }
-
-    return null;
-  }, []);
+    
+    return affiliateId;
+  };
 
   // Parse UTM parameters
   const parseUTMParameters = useCallback((url: string) => {
@@ -264,123 +149,158 @@ export const useTrafficAnalytics = () => {
     };
   }, []);
 
-  // Determine traffic source type with enhanced detection
-  const determineTrafficType = useCallback((referrer: string, url: string): TrafficSource => {
-    const currentUrl = window.location.href;
-    const userAgent = navigator.userAgent;
-    const timestamp = new Date();
-
-    // Check for UTM parameters first
-    const utmParams = parseUTMParameters(currentUrl);
-    
-    // Check for affiliate links
-    const affiliateId = detectAffiliateLink(currentUrl);
-
-    // If UTM parameters exist, use them
-    if (utmParams.source) {
-      return {
-        type: 'referral',
-        source: utmParams.source,
-        medium: utmParams.medium || 'referral',
-        campaign: utmParams.campaign,
-        term: utmParams.term,
-        content: utmParams.content,
-        affiliateId: affiliateId || undefined,
-        timestamp,
-        userAgent,
-        referrer,
-        url: currentUrl,
-        platform: utmParams.source
-      };
-    }
-
-    // Check for search engines
+  const determineTrafficType = (referrer: string, url: string): TrafficSource => {
+    const urlParams = new URLSearchParams(url.split('?')[1] || '');
+    const affiliateId = detectAffiliateLink(url);
     const searchEngine = detectSearchEngine(referrer);
-    if (searchEngine) {
-      return {
-        type: 'search',
-        source: searchEngine.engine,
-        medium: 'organic',
-        term: searchEngine.term,
-        affiliateId: affiliateId || undefined,
-        timestamp,
-        userAgent,
-        referrer,
-        url: currentUrl,
-        searchEngine: searchEngine.engine
-      };
-    }
-
-    // Check for social media
     const socialPlatform = detectSocialPlatform(referrer);
-    if (socialPlatform) {
-      return {
-        type: 'social',
-        source: socialPlatform.platform,
-        medium: 'social',
-        affiliateId: affiliateId || undefined,
-        timestamp,
-        userAgent,
-        referrer,
-        url: currentUrl,
-        socialPlatform: socialPlatform.platform
-      };
-    }
-
-    // Check for affiliate links without referrer
+    const userAgent = navigator.userAgent;
+    
+    // Enhanced UTM parameter detection
+    const utmSource = urlParams.get('utm_source');
+    const utmMedium = urlParams.get('utm_medium');
+    const utmCampaign = urlParams.get('utm_campaign');
+    const utmTerm = urlParams.get('utm_term');
+    const utmContent = urlParams.get('utm_content');
+    
+    // If affiliate link is detected
     if (affiliateId) {
       return {
         type: 'affiliate',
-        source: 'affiliate',
+        source: affiliateId,
         medium: 'affiliate',
-        affiliateId,
-        timestamp,
+        campaign: utmCampaign || 'affiliate_campaign',
+        term: utmTerm || '',
+        content: utmContent || '',
+        affiliateId: affiliateId,
+        searchEngine: searchEngine,
+        socialPlatform: socialPlatform,
+        platform: socialPlatform || searchEngine || 'affiliate',
+        timestamp: new Date(),
         userAgent,
         referrer,
-        url: currentUrl
+        url
       };
     }
-
-    // Check for email (common email domains)
-    if (referrer && (referrer.includes('mail.google.com') || referrer.includes('outlook') || referrer.includes('yahoo.com/mail'))) {
+    
+    // If social platform is detected
+    if (socialPlatform) {
       return {
-        type: 'email',
-        source: 'email',
-        medium: 'email',
-        affiliateId: affiliateId || undefined,
-        timestamp,
+        type: 'social',
+        source: socialPlatform,
+        medium: 'social',
+        campaign: utmCampaign || 'social_campaign',
+        term: utmTerm || '',
+        content: utmContent || '',
+        affiliateId: null,
+        searchEngine: null,
+        socialPlatform: socialPlatform,
+        platform: socialPlatform,
+        timestamp: new Date(),
         userAgent,
         referrer,
-        url: currentUrl
+        url
       };
     }
-
-    // Check for direct traffic (no referrer or same domain)
-    if (!referrer || referrer === '' || referrer.includes(window.location.hostname)) {
+    
+    // If search engine is detected
+    if (searchEngine) {
       return {
-        type: 'direct',
-        source: 'direct',
-        medium: 'none',
-        affiliateId: affiliateId || undefined,
-        timestamp,
+        type: 'search',
+        source: searchEngine,
+        medium: 'organic',
+        campaign: utmCampaign || 'organic_search',
+        term: utmTerm || '',
+        content: utmContent || '',
+        affiliateId: null,
+        searchEngine: searchEngine,
+        socialPlatform: null,
+        platform: searchEngine,
+        timestamp: new Date(),
         userAgent,
         referrer,
-        url: currentUrl
+        url
       };
     }
-
-    // Referral traffic
+    
+    // If UTM parameters are present
+    if (utmSource) {
+      return {
+        type: utmMedium === 'social' ? 'social' : utmMedium === 'search' ? 'search' : 'referral',
+        source: utmSource,
+        medium: utmMedium || 'referral',
+        campaign: utmCampaign || '',
+        term: utmTerm || '',
+        content: utmContent || '',
+        affiliateId: null,
+        searchEngine: searchEngine,
+        socialPlatform: socialPlatform,
+        platform: utmSource,
+        timestamp: new Date(),
+        userAgent,
+        referrer,
+        url
+      };
+    }
+    
+    // If referrer exists but not recognized
+    if (referrer && referrer !== '') {
+      try {
+        const referrerUrl = new URL(referrer);
+        return {
+          type: 'referral',
+          source: referrerUrl.hostname,
+          medium: 'referral',
+          campaign: utmCampaign || 'referral_campaign',
+          term: utmTerm || '',
+          content: utmContent || '',
+          affiliateId: null,
+          searchEngine: searchEngine,
+          socialPlatform: socialPlatform,
+          platform: referrerUrl.hostname,
+          timestamp: new Date(),
+          userAgent,
+          referrer,
+          url
+        };
+      } catch {
+        return {
+          type: 'referral',
+          source: referrer,
+          medium: 'referral',
+          campaign: utmCampaign || 'referral_campaign',
+          term: utmTerm || '',
+          content: utmContent || '',
+          affiliateId: null,
+          searchEngine: searchEngine,
+          socialPlatform: socialPlatform,
+          platform: referrer,
+          timestamp: new Date(),
+          userAgent,
+          referrer,
+          url
+        };
+      }
+    }
+    
+    // Default to direct traffic
     return {
-      type: 'referral',
-      source: new URL(referrer).hostname,
-      medium: 'referral',
-      affiliateId: affiliateId || undefined,
-      timestamp,
+      type: 'direct',
+      source: 'direct',
+      medium: 'none',
+      campaign: utmCampaign || 'direct_campaign',
+      term: utmTerm || '',
+      content: utmContent || '',
+      affiliateId: null,
+      searchEngine: null,
+      socialPlatform: null,
+      platform: 'direct',
+      timestamp: new Date(),
       userAgent,
       referrer,
-      url: currentUrl
+      url
     };
-  }, [detectSearchEngine, detectSocialPlatform, detectAffiliateLink, parseUTMParameters]);
+  };
 
   // Generate date-wise statistics
   const generateDateWiseStats = useCallback((traffic: TrafficSource[]) => {
