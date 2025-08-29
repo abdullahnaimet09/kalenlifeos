@@ -3,6 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useTrafficAnalytics, TrafficStats } from "@/hooks/useTrafficAnalytics";
 import { 
   Search, 
@@ -13,13 +17,25 @@ import {
   TrendingUp, 
   ExternalLink,
   BarChart3,
-  PieChart,
-  Activity
+  Activity,
+  Calendar,
+  Clock,
+  Filter,
+  Download,
+  RefreshCw,
+  Eye,
+  Target,
+  Zap
 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Cell, Pie } from 'recharts';
 
 const TrafficAnalyticsDashboard: React.FC = () => {
-  const { currentTraffic, getTrafficStats } = useTrafficAnalytics();
+  const { currentTraffic, getTrafficStats, createAffiliateLink, affiliateLinks } = useTrafficAnalytics();
   const [stats, setStats] = useState<TrafficStats | null>(null);
+  const [dateRange, setDateRange] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [selectedAffiliate, setSelectedAffiliate] = useState<string>('');
+  const [newAffiliateName, setNewAffiliateName] = useState<string>('');
+  const [isCreatingAffiliate, setIsCreatingAffiliate] = useState(false);
 
   useEffect(() => {
     const updateStats = () => {
@@ -31,14 +47,6 @@ const TrafficAnalyticsDashboard: React.FC = () => {
     
     return () => clearInterval(interval);
   }, [getTrafficStats]);
-
-  if (!stats) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   const getSourceIcon = (type: string) => {
     switch (type) {
@@ -64,19 +72,82 @@ const TrafficAnalyticsDashboard: React.FC = () => {
     }
   };
 
+  const handleCreateAffiliate = () => {
+    if (newAffiliateName.trim()) {
+      setIsCreatingAffiliate(true);
+      const affiliate = createAffiliateLink(newAffiliateName.trim());
+      setNewAffiliateName('');
+      setIsCreatingAffiliate(false);
+    }
+  };
+
+  const getChartData = () => {
+    if (!stats) return [];
+    
+    const data = stats.dateWiseStats[dateRange];
+    return data.map(item => ({
+      name: dateRange === 'daily' ? item.date : dateRange === 'weekly' ? item.week : item.month,
+      visits: item.visits,
+      search: item.sources.search || 0,
+      social: item.sources.social || 0,
+      direct: item.sources.direct || 0,
+      affiliate: item.sources.affiliate || 0,
+      referral: item.sources.referral || 0,
+      email: item.sources.email || 0
+    }));
+  };
+
+  const getPieChartData = () => {
+    if (!stats) return [];
+    
+    return Object.entries(stats.sources).map(([key, value]) => ({
+      name: key.charAt(0).toUpperCase() + key.slice(1),
+      value: value as number,
+      color: getSourceColor(key)
+    })).filter(item => item.value > 0);
+  };
+
+  const getPlatformChartData = () => {
+    if (!stats) return [];
+    
+    return Object.entries(stats.platformBreakdown)
+      .map(([platform, count]) => ({
+        name: platform,
+        visits: count
+      }))
+      .sort((a, b) => b.visits - a.visits)
+      .slice(0, 10);
+  };
+
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Traffic Analytics</h1>
+          <h1 className="text-3xl font-bold">Enhanced Traffic Analytics</h1>
           <p className="text-muted-foreground">
-            Real-time traffic source tracking and analytics
+            Comprehensive traffic source tracking with date-wise analytics
           </p>
         </div>
-        <Badge variant="secondary" className="text-sm">
-          Total Visits: {stats.totalVisits}
-        </Badge>
+        <div className="flex items-center gap-4">
+          <Badge variant="secondary" className="text-sm">
+            Total Visits: {stats.totalVisits}
+          </Badge>
+          <Button variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Current Traffic Source */}
@@ -98,6 +169,8 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                 <p className="text-sm text-muted-foreground">
                   {currentTraffic.type} • {currentTraffic.medium}
                   {currentTraffic.affiliateId && ` • Affiliate: ${currentTraffic.affiliateId}`}
+                  {currentTraffic.socialPlatform && ` • Platform: ${currentTraffic.socialPlatform}`}
+                  {currentTraffic.searchEngine && ` • Engine: ${currentTraffic.searchEngine}`}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {currentTraffic.timestamp.toLocaleString()}
@@ -179,86 +252,176 @@ const TrafficAnalyticsDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Detailed Analytics */}
-      <Tabs defaultValue="sources" className="space-y-4">
+      {/* Charts Section */}
+      <Tabs defaultValue="trends" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="sources">Top Sources</TabsTrigger>
-          <TabsTrigger value="search">Search Engines</TabsTrigger>
-          <TabsTrigger value="social">Social Platforms</TabsTrigger>
-          <TabsTrigger value="affiliates">Affiliates</TabsTrigger>
+          <TabsTrigger value="trends">Traffic Trends</TabsTrigger>
+          <TabsTrigger value="sources">Source Breakdown</TabsTrigger>
+          <TabsTrigger value="platforms">Platform Analytics</TabsTrigger>
+          <TabsTrigger value="affiliates">Affiliate Management</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="sources" className="space-y-4">
+        <TabsContent value="trends" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Top Traffic Sources</CardTitle>
-              <CardDescription>Most common sources driving traffic to your site</CardDescription>
+              <CardTitle>Traffic Trends Over Time</CardTitle>
+              <CardDescription>Visualize traffic patterns by date range</CardDescription>
+              <div className="flex items-center gap-4 mt-4">
+                <Select value={dateRange} onValueChange={(value: 'daily' | 'weekly' | 'monthly') => setDateRange(value)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {stats.topSources.map((source, index) => (
-                  <div key={source.source} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline">#{index + 1}</Badge>
-                      <span className="font-medium">{source.source}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted-foreground">
-                        {source.count} visits
-                      </span>
-                      <div className="w-32">
-                        <Progress value={source.percentage} className="h-2" />
-                      </div>
-                      <span className="text-sm font-medium w-12 text-right">
-                        {source.percentage.toFixed(1)}%
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={getChartData()}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="visits" stroke="#8884d8" strokeWidth={2} />
+                    <Line type="monotone" dataKey="search" stroke="#0088FE" strokeWidth={2} />
+                    <Line type="monotone" dataKey="social" stroke="#00C49F" strokeWidth={2} />
+                    <Line type="monotone" dataKey="direct" stroke="#FFBB28" strokeWidth={2} />
+                    <Line type="monotone" dataKey="affiliate" stroke="#FF8042" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="search" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Search Engine Traffic</CardTitle>
-              <CardDescription>Traffic from organic search results</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {stats.topSearchEngines.length > 0 ? (
-                  stats.topSearchEngines.map((engine, index) => (
-                    <div key={engine.engine} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Search className="h-4 w-4 text-blue-500" />
-                        <span className="font-medium">{engine.engine}</span>
-                      </div>
+        <TabsContent value="sources" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Traffic Source Distribution</CardTitle>
+                <CardDescription>Pie chart showing traffic source breakdown</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={getPieChartData()}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {getPieChartData().map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Traffic Sources</CardTitle>
+                <CardDescription>Most common sources driving traffic</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {stats.topSources.map((source, index) => (
+                    <div key={source.source} className="flex items-center justify-between">
+                                             <div className="flex items-center gap-3">
+                         <Badge variant="outline" className="text-xs">#{index + 1}</Badge>
+                         <span className="font-medium">{source.source}</span>
+                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-sm text-muted-foreground">
-                          {engine.count} visits
+                          {source.count} visits
                         </span>
-                        <Badge variant="secondary">
-                          {((engine.count / stats.sources.search) * 100).toFixed(1)}%
-                        </Badge>
+                        <div className="w-32">
+                          <Progress value={source.percentage} className="h-2" />
+                        </div>
+                        <span className="text-sm font-medium w-12 text-right">
+                          {source.percentage.toFixed(1)}%
+                        </span>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground text-center py-8">
-                    No search engine traffic yet
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="social" className="space-y-4">
+        <TabsContent value="platforms" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Performance</CardTitle>
+                <CardDescription>Traffic from different platforms</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={getPlatformChartData()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="visits" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Search Engine Breakdown</CardTitle>
+                <CardDescription>Traffic from organic search</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {stats.topSearchEngines.length > 0 ? (
+                    stats.topSearchEngines.map((engine, index) => (
+                      <div key={engine.engine} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Search className="h-4 w-4 text-blue-500" />
+                          <span className="font-medium">{engine.engine}</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm text-muted-foreground">
+                            {engine.count} visits
+                          </span>
+                          <Badge variant="secondary">
+                            {((engine.count / stats.sources.search) * 100).toFixed(1)}%
+                          </Badge>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-center py-8">
+                      No search engine traffic yet
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle>Social Media Traffic</CardTitle>
+              <CardTitle>Social Media Platforms</CardTitle>
               <CardDescription>Traffic from social media platforms</CardDescription>
             </CardHeader>
             <CardContent>
@@ -291,38 +454,112 @@ const TrafficAnalyticsDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="affiliates" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Affiliate Performance</CardTitle>
-              <CardDescription>Traffic and conversions from affiliate partners</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {stats.topAffiliates.length > 0 ? (
-                  stats.topAffiliates.map((affiliate, index) => (
-                    <div key={affiliate.affiliateId} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Users className="h-4 w-4 text-pink-500" />
-                        <span className="font-medium">{affiliate.affiliateId}</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Create Affiliate Link</CardTitle>
+                <CardDescription>Generate unique affiliate links for tracking</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="affiliateName">Affiliate Name</Label>
+                  <Input
+                    id="affiliateName"
+                    placeholder="Enter affiliate name"
+                    value={newAffiliateName}
+                    onChange={(e) => setNewAffiliateName(e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={handleCreateAffiliate} 
+                  disabled={!newAffiliateName.trim() || isCreatingAffiliate}
+                  className="w-full"
+                >
+                  <Target className="mr-2 h-4 w-4" />
+                  Create Affiliate Link
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Affiliate Performance</CardTitle>
+                <CardDescription>Track affiliate partner performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {stats.topAffiliates.length > 0 ? (
+                    stats.topAffiliates.map((affiliate, index) => (
+                      <div key={affiliate.affiliateId} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Users className="h-4 w-4 text-pink-500" />
+                          <div>
+                            <span className="font-medium">{affiliate.affiliateId}</span>
+                            {affiliate.platforms.length > 0 && (
+                              <div className="flex gap-1 mt-1">
+                                {affiliate.platforms.slice(0, 3).map((platform, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-xs">
+                                    {platform}
+                                  </Badge>
+                                ))}
+                                {affiliate.platforms.length > 3 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{affiliate.platforms.length - 3}
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm text-muted-foreground">
+                            {affiliate.count} visits
+                          </span>
+                          <Badge variant="secondary">
+                            {((affiliate.count / stats.sources.affiliate) * 100).toFixed(1)}%
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-muted-foreground">
-                          {affiliate.count} visits
-                        </span>
-                        <Badge variant="secondary">
-                          {((affiliate.count / stats.sources.affiliate) * 100).toFixed(1)}%
-                        </Badge>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-center py-8">
+                      No affiliate traffic yet. Create an affiliate link to start tracking.
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {affiliateLinks.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Affiliate Links</CardTitle>
+                <CardDescription>Manage and track your affiliate links</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {affiliateLinks.map((link) => (
+                    <div key={link.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h4 className="font-semibold">{link.name}</h4>
+                        <p className="text-sm text-muted-foreground">{link.url}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Created: {link.createdAt.toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">{link.totalClicks} clicks</Badge>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground text-center py-8">
-                    No affiliate traffic yet
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
 
