@@ -521,50 +521,103 @@ const TrafficAnalyticsDashboard: React.FC = () => {
           </Card>
           </div>
 
+          {/* Explicit Platform Breakdown */}
           <Card>
             <CardHeader>
-              <CardTitle>Detailed Platform Breakdown</CardTitle>
-              <CardDescription>Explicit traffic from each platform</CardDescription>
+              <CardTitle>Explicit Platform Breakdown</CardTitle>
+              <CardDescription>Detailed traffic from each individual platform</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 {/* Search Engines */}
                 <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Search className="h-4 w-4 text-blue-500" />
+                  <h4 className="font-semibold mb-4 flex items-center gap-2 text-blue-600">
+                    <Search className="h-5 w-5" />
                     Search Engines
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {getSearchEngineData().map((engine) => (
-                      <div key={engine.name} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center gap-2">
+                      <div key={engine.name} className="flex items-center justify-between p-4 border rounded-lg bg-blue-50">
+                        <div className="flex items-center gap-3">
                           {getPlatformIcon(engine.name)}
-                          <span className="font-medium">{engine.name}</span>
+                          <div>
+                            <span className="font-medium">{engine.name}</span>
+                            <p className="text-xs text-muted-foreground">Search Engine</p>
+                          </div>
                         </div>
-                        <Badge variant="secondary">{engine.visits} visits</Badge>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-blue-600">{engine.visits}</div>
+                          <div className="text-xs text-muted-foreground">visits</div>
+                        </div>
                       </div>
                     ))}
+                    {getSearchEngineData().length === 0 && (
+                      <div className="col-span-full text-center py-8 text-muted-foreground">
+                        No search engine traffic yet
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Social Platforms */}
+                {/* Social Media Platforms */}
                 <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                        <Share2 className="h-4 w-4 text-green-500" />
+                  <h4 className="font-semibold mb-4 flex items-center gap-2 text-green-600">
+                    <Share2 className="h-5 w-5" />
                     Social Media Platforms
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {getSocialPlatformData().map((platform) => (
-                      <div key={platform.name} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center gap-2">
+                      <div key={platform.name} className="flex items-center justify-between p-4 border rounded-lg bg-green-50">
+                        <div className="flex items-center gap-3">
                           {getPlatformIcon(platform.name)}
-                          <span className="font-medium">{platform.name}</span>
+                          <div>
+                            <span className="font-medium">{platform.name}</span>
+                            <p className="text-xs text-muted-foreground">Social Platform</p>
+                          </div>
                         </div>
-                        <Badge variant="secondary">{platform.visits} visits</Badge>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-green-600">{platform.visits}</div>
+                          <div className="text-xs text-muted-foreground">visits</div>
+                        </div>
                       </div>
                     ))}
+                    {getSocialPlatformData().length === 0 && (
+                      <div className="col-span-full text-center py-8 text-muted-foreground">
+                        No social media traffic yet
                       </div>
-                    </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* All Platforms Combined */}
+                <div>
+                  <h4 className="font-semibold mb-4 flex items-center gap-2 text-purple-600">
+                    <Globe className="h-5 w-5" />
+                    All Platforms Combined
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {getPlatformChartData().map((platform) => (
+                      <div key={platform.name} className="flex items-center justify-between p-4 border rounded-lg bg-purple-50">
+                        <div className="flex items-center gap-3">
+                          {getPlatformIcon(platform.name)}
+                          <div>
+                            <span className="font-medium">{platform.name}</span>
+                            <p className="text-xs text-muted-foreground">Platform</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-purple-600">{platform.visits}</div>
+                          <div className="text-xs text-muted-foreground">visits</div>
+                        </div>
+                      </div>
+                    ))}
+                    {getPlatformChartData().length === 0 && (
+                      <div className="col-span-full text-center py-8 text-muted-foreground">
+                        No platform traffic yet
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -724,25 +777,61 @@ const TrafficAnalyticsDashboard: React.FC = () => {
 
       {/* Debug Section */}
       <div className="mt-6 p-4 border rounded-lg bg-gray-50">
-        <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-          <TestTube className="h-5 w-5 text-purple-600" /> Debug Tools
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <TestTube className="h-5 w-5 text-purple-600" /> Debug & Test Tools
         </h3>
-        <Button variant="outline" size="sm" onClick={handleRefresh} className="mb-2">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh Stats
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleClearSession} className="mb-2">
-          <Trash2 className="h-4 w-4 mr-2" />
-          Clear Session Data
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleForceTrack} className="mb-2">
-          <Zap className="h-4 w-4 mr-2" />
-          Force Track Visit
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleClearAllData} className="mt-2">
-          <Trash2 className="h-4 w-4 mr-2" />
-          Clear All Data
-        </Button>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h4 className="font-medium mb-2">Session Management</h4>
+            <div className="space-y-2">
+              <Button variant="outline" size="sm" onClick={handleRefresh} className="w-full">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Stats
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleClearSession} className="w-full">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear Session Data
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleForceTrack} className="w-full">
+                <Zap className="h-4 w-4 mr-2" />
+                Force Track Visit
+              </Button>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="font-medium mb-2">Data Management</h4>
+            <div className="space-y-2">
+              <Button variant="outline" size="sm" onClick={handleClearAllData} className="w-full">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear All Data
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowDebug(!showDebug)} 
+                className="w-full"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                {showDebug ? 'Hide' : 'Show'} Debug Info
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {showDebug && (
+          <div className="mt-4 p-4 bg-white rounded-lg border">
+            <h4 className="font-medium mb-2">Current Session Info</h4>
+            <div className="text-sm space-y-1">
+              <p><strong>Current URL:</strong> {window.location.href}</p>
+              <p><strong>Referrer:</strong> {document.referrer || 'None'}</p>
+              <p><strong>User Agent:</strong> {navigator.userAgent.substring(0, 50)}...</p>
+              <p><strong>Session Storage Keys:</strong> {Object.keys(sessionStorage).join(', ') || 'None'}</p>
+              <p><strong>Local Storage Keys:</strong> {Object.keys(localStorage).join(', ') || 'None'}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

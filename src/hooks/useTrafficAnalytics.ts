@@ -360,14 +360,11 @@ export const useTrafficAnalytics = () => {
   const trackVisit = useCallback(() => {
     const referrer = document.referrer;
     const currentUrl = window.location.href;
-    const sessionId = sessionStorage.getItem('analytics_session_id');
-    const currentSessionId = `${Date.now()}-${Math.random()}`;
     
-    // Only track if this is a new session or different page
-    const lastTrackedUrl = sessionStorage.getItem('last_tracked_url');
-    const shouldTrack = !sessionId || lastTrackedUrl !== currentUrl;
+    // Simple session tracking - only track once per page load
+    const hasTrackedThisPage = sessionStorage.getItem(`tracked_${currentUrl}`);
     
-    if (shouldTrack) {
+    if (!hasTrackedThisPage) {
       const trafficSource = determineTrafficType(referrer, currentUrl);
       
       setCurrentTraffic(trafficSource);
@@ -390,9 +387,8 @@ export const useTrafficAnalytics = () => {
       
       localStorage.setItem('traffic_history', JSON.stringify(history));
       
-      // Update session tracking
-      sessionStorage.setItem('analytics_session_id', currentSessionId);
-      sessionStorage.setItem('last_tracked_url', currentUrl);
+      // Mark this page as tracked
+      sessionStorage.setItem(`tracked_${currentUrl}`, 'true');
       
       // Send to Google Analytics if available
       if (typeof window !== 'undefined' && window.gtag) {
