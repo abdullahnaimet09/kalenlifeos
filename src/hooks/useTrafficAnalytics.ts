@@ -93,7 +93,7 @@ export const useTrafficAnalytics = () => {
     if (lowerReferrer.includes('yandex.com') || lowerReferrer.includes('yandex.')) return 'Yandex';
     if (lowerReferrer.includes('ecosia.org') || lowerReferrer.includes('ecosia.')) return 'Ecosia';
     if (lowerReferrer.includes('qwant.com') || lowerReferrer.includes('qwant.')) return 'Qwant';
-    
+
     return null;
   };
 
@@ -115,7 +115,7 @@ export const useTrafficAnalytics = () => {
     if (lowerReferrer.includes('twitch.tv')) return 'Twitch';
     if (lowerReferrer.includes('medium.com')) return 'Medium';
     if (lowerReferrer.includes('quora.com')) return 'Quora';
-    
+
     return null;
   };
 
@@ -202,7 +202,7 @@ export const useTrafficAnalytics = () => {
         url
       };
     }
-    
+
     // If search engine is detected
     if (searchEngine) {
       return {
@@ -222,7 +222,7 @@ export const useTrafficAnalytics = () => {
         url
       };
     }
-    
+
     // If UTM parameters are present
     if (utmSource) {
       return {
@@ -247,7 +247,7 @@ export const useTrafficAnalytics = () => {
     if (referrer && referrer !== '') {
       try {
         const referrerUrl = new URL(referrer);
-        return {
+      return {
           type: 'referral',
           source: referrerUrl.hostname,
           medium: 'referral',
@@ -259,12 +259,12 @@ export const useTrafficAnalytics = () => {
           socialPlatform: socialPlatform,
           platform: referrerUrl.hostname,
           timestamp: new Date(),
-          userAgent,
-          referrer,
+        userAgent,
+        referrer,
           url
-        };
+      };
       } catch {
-        return {
+      return {
           type: 'referral',
           source: referrer,
           medium: 'referral',
@@ -276,18 +276,18 @@ export const useTrafficAnalytics = () => {
           socialPlatform: socialPlatform,
           platform: referrer,
           timestamp: new Date(),
-          userAgent,
-          referrer,
+        userAgent,
+        referrer,
           url
-        };
+      };
       }
     }
-    
+
     // Default to direct traffic
-    return {
-      type: 'direct',
-      source: 'direct',
-      medium: 'none',
+      return {
+        type: 'direct',
+        source: 'direct',
+        medium: 'none',
       campaign: utmCampaign || 'direct_campaign',
       term: utmTerm || '',
       content: utmContent || '',
@@ -296,8 +296,8 @@ export const useTrafficAnalytics = () => {
       socialPlatform: null,
       platform: 'direct',
       timestamp: new Date(),
-      userAgent,
-      referrer,
+        userAgent,
+        referrer,
       url
     };
   };
@@ -359,40 +359,54 @@ export const useTrafficAnalytics = () => {
   // Track current visit
   const trackVisit = useCallback(() => {
     const referrer = document.referrer;
-    const trafficSource = determineTrafficType(referrer, window.location.href);
+    const currentUrl = window.location.href;
+    const sessionId = sessionStorage.getItem('analytics_session_id');
+    const currentSessionId = `${Date.now()}-${Math.random()}`;
     
-    setCurrentTraffic(trafficSource);
+    // Only track if this is a new session or different page
+    const lastTrackedUrl = sessionStorage.getItem('last_tracked_url');
+    const shouldTrack = !sessionId || lastTrackedUrl !== currentUrl;
     
-    // Add to history
-    setTrafficHistory(prev => [...prev, trafficSource]);
-    
-    // Store in localStorage for persistence
-    const storedHistory = localStorage.getItem('traffic_history');
-    const history = storedHistory ? JSON.parse(storedHistory) : [];
-    history.push({
-      ...trafficSource,
-      timestamp: trafficSource.timestamp.toISOString()
-    });
-    
-    // Keep only last 10000 visits
-    if (history.length > 10000) {
-      history.splice(0, history.length - 10000);
-    }
-    
-    localStorage.setItem('traffic_history', JSON.stringify(history));
-    
-    // Send to Google Analytics if available
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'page_view', {
-        traffic_source: trafficSource.type,
-        source: trafficSource.source,
-        medium: trafficSource.medium,
-        campaign: trafficSource.campaign,
-        affiliate_id: trafficSource.affiliateId,
-        search_term: trafficSource.term,
-        social_platform: trafficSource.socialPlatform,
-        search_engine: trafficSource.searchEngine
+    if (shouldTrack) {
+      const trafficSource = determineTrafficType(referrer, currentUrl);
+      
+      setCurrentTraffic(trafficSource);
+      
+      // Add to history
+      setTrafficHistory(prev => [...prev, trafficSource]);
+      
+      // Store in localStorage for persistence
+      const storedHistory = localStorage.getItem('traffic_history');
+      const history = storedHistory ? JSON.parse(storedHistory) : [];
+      history.push({
+        ...trafficSource,
+        timestamp: trafficSource.timestamp.toISOString()
       });
+      
+      // Keep only last 10000 visits
+      if (history.length > 10000) {
+        history.splice(0, history.length - 10000);
+      }
+      
+      localStorage.setItem('traffic_history', JSON.stringify(history));
+      
+      // Update session tracking
+      sessionStorage.setItem('analytics_session_id', currentSessionId);
+      sessionStorage.setItem('last_tracked_url', currentUrl);
+      
+      // Send to Google Analytics if available
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'page_view', {
+          page_title: document.title,
+          page_location: currentUrl,
+          traffic_source: trafficSource.type,
+          traffic_medium: trafficSource.medium,
+          traffic_campaign: trafficSource.campaign,
+          social_platform: trafficSource.socialPlatform,
+          search_engine: trafficSource.searchEngine,
+          affiliate_id: trafficSource.affiliateId
+        });
+      }
     }
   }, [determineTrafficType]);
 
@@ -545,36 +559,51 @@ export const useTrafficAnalytics = () => {
     return result;
   };
 
-  // Load history and affiliate links from localStorage on mount
+  // Clear session data (useful for testing)
+  const clearSessionData = useCallback(() => {
+    sessionStorage.removeItem('analytics_session_id');
+    sessionStorage.removeItem('last_tracked_url');
+  }, []);
+
+  // Force track a visit (for testing purposes)
+  const forceTrackVisit = useCallback(() => {
+    clearSessionData();
+    trackVisit();
+  }, [clearSessionData, trackVisit]);
+
+  // Load traffic history from localStorage
   useEffect(() => {
     const storedHistory = localStorage.getItem('traffic_history');
     if (storedHistory) {
       try {
-        const history = JSON.parse(storedHistory).map((item: any) => ({
+        const history = JSON.parse(storedHistory);
+        const parsedHistory = history.map((item: any) => ({
           ...item,
           timestamp: new Date(item.timestamp)
         }));
-        setTrafficHistory(history);
+        setTrafficHistory(parsedHistory);
       } catch (error) {
-        console.error('Error loading traffic history:', error);
+        console.error('Error parsing traffic history:', error);
       }
     }
 
-    const storedLinks = localStorage.getItem('affiliate_links');
-    if (storedLinks) {
+    // Load affiliate links
+    const storedAffiliateLinks = localStorage.getItem('affiliate_links');
+    if (storedAffiliateLinks) {
       try {
-        const links = JSON.parse(storedLinks).map((item: any) => ({
-          ...item,
-          createdAt: new Date(item.createdAt)
+        const links = JSON.parse(storedAffiliateLinks);
+        const parsedLinks = links.map((link: any) => ({
+          ...link,
+          createdAt: new Date(link.createdAt)
         }));
-        setAffiliateLinks(links);
+        setAffiliateLinks(parsedLinks);
       } catch (error) {
-        console.error('Error loading affiliate links:', error);
+        console.error('Error parsing affiliate links:', error);
       }
     }
   }, []);
 
-  // Track visit on mount
+  // Track visit on component mount
   useEffect(() => {
     trackVisit();
   }, [trackVisit]);
@@ -582,12 +611,11 @@ export const useTrafficAnalytics = () => {
   return {
     currentTraffic,
     trafficHistory,
-    affiliateLinks,
-    trackVisit,
     getTrafficStats,
+    trackVisit,
+    clearSessionData,
+    forceTrackVisit,
     createAffiliateLink,
-    detectSearchEngine,
-    detectSocialPlatform,
-    detectAffiliateLink
+    affiliateLinks
   };
 };

@@ -31,13 +31,15 @@ import {
   Instagram,
   Linkedin,
   Youtube,
-  MessageCircle
+  MessageCircle,
+  TestTube,
+  Trash2
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Cell, Pie } from 'recharts';
 import { format } from "date-fns";
 
 const TrafficAnalyticsDashboard: React.FC = () => {
-  const { currentTraffic, getTrafficStats, createAffiliateLink, affiliateLinks } = useTrafficAnalytics();
+  const { currentTraffic, getTrafficStats, createAffiliateLink, affiliateLinks, clearSessionData, forceTrackVisit } = useTrafficAnalytics();
   const [stats, setStats] = useState<TrafficStats | null>(null);
   const [dateRange, setDateRange] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily');
   const [customStartDate, setCustomStartDate] = useState<Date | undefined>(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
@@ -45,6 +47,7 @@ const TrafficAnalyticsDashboard: React.FC = () => {
   const [selectedAffiliate, setSelectedAffiliate] = useState<string>('');
   const [newAffiliateName, setNewAffiliateName] = useState<string>('');
   const [isCreatingAffiliate, setIsCreatingAffiliate] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
 
   useEffect(() => {
     const updateStats = () => {
@@ -56,6 +59,29 @@ const TrafficAnalyticsDashboard: React.FC = () => {
     
     return () => clearInterval(interval);
   }, [getTrafficStats]);
+
+  const handleRefresh = () => {
+    setStats(getTrafficStats());
+  };
+
+  const handleClearSession = () => {
+    clearSessionData();
+    alert('Session data cleared! Refresh the page to test traffic detection.');
+  };
+
+  const handleForceTrack = () => {
+    forceTrackVisit();
+    alert('Forced visit tracking! Check the current visit source.');
+  };
+
+  const handleClearAllData = () => {
+    if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
+      localStorage.removeItem('traffic_history');
+      localStorage.removeItem('affiliate_links');
+      sessionStorage.clear();
+      window.location.reload();
+    }
+  };
 
   const getSourceIcon = (type: string) => {
     switch (type) {
@@ -193,9 +219,9 @@ const TrafficAnalyticsDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Badge variant="secondary" className="text-sm">
-            Total Visits: {stats.totalVisits}
-          </Badge>
+        <Badge variant="secondary" className="text-sm">
+          Total Visits: {stats.totalVisits}
+        </Badge>
           <Button variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -420,46 +446,46 @@ const TrafficAnalyticsDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Traffic Sources</CardTitle>
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Traffic Sources</CardTitle>
                 <CardDescription>Most common sources driving traffic</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {stats.topSources.map((source, index) => (
-                    <div key={source.source} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.topSources.map((source, index) => (
+                  <div key={source.source} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
                         <Badge variant="outline" className="text-xs">#{index + 1}</Badge>
-                        <span className="font-medium">{source.source}</span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-muted-foreground">
-                          {source.count} visits
-                        </span>
-                        <div className="w-32">
-                          <Progress value={source.percentage} className="h-2" />
-                        </div>
-                        <span className="text-sm font-medium w-12 text-right">
-                          {source.percentage.toFixed(1)}%
-                        </span>
-                      </div>
+                      <span className="font-medium">{source.source}</span>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-muted-foreground">
+                        {source.count} visits
+                      </span>
+                      <div className="w-32">
+                        <Progress value={source.percentage} className="h-2" />
+                      </div>
+                      <span className="text-sm font-medium w-12 text-right">
+                        {source.percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
           </div>
         </TabsContent>
 
         <TabsContent value="platforms" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
+          <Card>
+            <CardHeader>
                 <CardTitle>Search Engine Performance</CardTitle>
                 <CardDescription>Traffic from specific search engines</CardDescription>
-              </CardHeader>
-              <CardContent>
+            </CardHeader>
+            <CardContent>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={getSearchEngineData()}>
@@ -470,7 +496,7 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                       <Bar dataKey="visits" fill="#0088FE" />
                     </BarChart>
                   </ResponsiveContainer>
-                </div>
+                      </div>
               </CardContent>
             </Card>
 
@@ -490,9 +516,9 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                       <Bar dataKey="visits" fill="#00C49F" />
                     </BarChart>
                   </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
           </div>
 
           <Card>
@@ -524,7 +550,7 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                 {/* Social Platforms */}
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Share2 className="h-4 w-4 text-green-500" />
+                        <Share2 className="h-4 w-4 text-green-500" />
                     Social Media Platforms
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -537,8 +563,8 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                         <Badge variant="secondary">{platform.visits} visits</Badge>
                       </div>
                     ))}
-                  </div>
-                </div>
+                      </div>
+                    </div>
               </div>
             </CardContent>
           </Card>
@@ -572,20 +598,20 @@ const TrafficAnalyticsDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Affiliate Performance</CardTitle>
+          <Card>
+            <CardHeader>
+              <CardTitle>Affiliate Performance</CardTitle>
                 <CardDescription>Track affiliate partner performance</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {stats.topAffiliates.length > 0 ? (
-                    stats.topAffiliates.map((affiliate, index) => (
-                      <div key={affiliate.affiliateId} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Users className="h-4 w-4 text-pink-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.topAffiliates.length > 0 ? (
+                  stats.topAffiliates.map((affiliate, index) => (
+                    <div key={affiliate.affiliateId} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Users className="h-4 w-4 text-pink-500" />
                           <div>
-                            <span className="font-medium">{affiliate.affiliateId}</span>
+                        <span className="font-medium">{affiliate.affiliateId}</span>
                             {affiliate.platforms.length > 0 && (
                               <div className="flex gap-1 mt-1">
                                 {affiliate.platforms.slice(0, 3).map((platform, idx) => (
@@ -601,25 +627,25 @@ const TrafficAnalyticsDashboard: React.FC = () => {
                               </div>
                             )}
                           </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-sm text-muted-foreground">
-                            {affiliate.count} visits
-                          </span>
-                          <Badge variant="secondary">
-                            {((affiliate.count / stats.sources.affiliate) * 100).toFixed(1)}%
-                          </Badge>
-                        </div>
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-center py-8">
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm text-muted-foreground">
+                          {affiliate.count} visits
+                        </span>
+                        <Badge variant="secondary">
+                          {((affiliate.count / stats.sources.affiliate) * 100).toFixed(1)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">
                       No affiliate traffic yet. Create an affiliate link to start tracking.
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
           </div>
 
           {affiliateLinks.length > 0 && (
@@ -694,6 +720,29 @@ const TrafficAnalyticsDashboard: React.FC = () => {
             </p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Debug Section */}
+      <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+        <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+          <TestTube className="h-5 w-5 text-purple-600" /> Debug Tools
+        </h3>
+        <Button variant="outline" size="sm" onClick={handleRefresh} className="mb-2">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh Stats
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleClearSession} className="mb-2">
+          <Trash2 className="h-4 w-4 mr-2" />
+          Clear Session Data
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleForceTrack} className="mb-2">
+          <Zap className="h-4 w-4 mr-2" />
+          Force Track Visit
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleClearAllData} className="mt-2">
+          <Trash2 className="h-4 w-4 mr-2" />
+          Clear All Data
+        </Button>
       </div>
     </div>
   );
