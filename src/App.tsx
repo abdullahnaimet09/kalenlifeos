@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import PreviewPage from "./pages/PreviewPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import NotFound from "./pages/NotFound";
+import { StructuredData } from "./components/StructuredData";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,9 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <StructuredData type="organization" />
+      <StructuredData type="website" />
+      <StructuredData type="product" />
       <HashRouter>
         <Routes>
           <Route path="/" element={<Index />} />
