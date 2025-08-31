@@ -13,6 +13,11 @@ import { BreadcrumbSchema } from "./components/BreadcrumbSchema";
 import { ArticleSchema } from "./components/ArticleSchema";
 import { ReviewSchema } from "./components/ReviewSchema";
 import { HowToSchema } from "./components/HowToSchema";
+import { VideoSchema } from "./components/VideoSchema";
+import { LocalBusinessSchema } from "./components/LocalBusinessSchema";
+import { SoftwareSchema } from "./components/SoftwareSchema";
+import { WebPageSchema } from "./components/WebPageSchema";
+import { CreativeWorkSchema } from "./components/CreativeWorkSchema";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +34,11 @@ const App = () => (
       <ArticleSchema />
       <ReviewSchema />
       <HowToSchema />
+      <VideoSchema />
+      <LocalBusinessSchema />
+      <SoftwareSchema />
+      <WebPageSchema />
+      <CreativeWorkSchema />
       <HashRouter>
         <Routes>
           <Route path="/" element={<Index />} />
