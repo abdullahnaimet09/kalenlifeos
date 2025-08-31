@@ -8,6 +8,9 @@ import PreviewPage from "./pages/PreviewPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import NotFound from "./pages/NotFound";
 import { StructuredData } from "./components/StructuredData";
+import { FAQSchema } from "./components/FAQSchema";
+import { BreadcrumbSchema } from "./components/BreadcrumbSchema";
+import { ArticleSchema } from "./components/ArticleSchema";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +22,9 @@ const App = () => (
       <StructuredData type="organization" />
       <StructuredData type="website" />
       <StructuredData type="product" />
+      <FAQSchema />
+      <BreadcrumbSchema />
+      <ArticleSchema />
       <HashRouter>
         <Routes>
           <Route path="/" element={<Index />} />

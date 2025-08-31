@@ -13,6 +13,10 @@
     <!-- Preload critical resources -->
     <link rel="preload" href="/src/main.tsx" as="script">
     <link rel="preload" href="/src/index.css" as="style">
+    <link rel="preload" href="/social-preview.png" as="image">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <meta name="author" content="Kalen Life OS" />
 
     <!-- Open Graph / Facebook -->
@@ -51,6 +55,21 @@
     <meta name="author" content="Kalen Life OS" />
     <meta name="copyright" content="Kalen Life OS" />
     
+    <!-- Advanced SEO Meta Tags -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="msapplication-TileColor" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Advanced Indexing Meta Tags -->
+    <meta name="google-site-verification" content="your-verification-code" />
+    <meta name="msvalidate.01" content="your-bing-verification-code" />
+    <meta name="yandex-verification" content="your-yandex-verification-code" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GTZ9M16LGG"></script>
     <script>
@@ -64,6 +83,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/lovable-uploads/logo.png" />
     <link rel="apple-touch-icon" href="/lovable-uploads/logo.png" />
+    <link rel="manifest" href="/manifest.json" />
     
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
@@ -92,5 +112,32 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Performance Optimization -->
+    <script>
+      // Preload critical resources
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+      
+      // Optimize loading
+      document.addEventListener('DOMContentLoaded', function() {
+        // Lazy load images
+        const images = document.querySelectorAll('img[data-src]');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src;
+              img.classList.remove('lazy');
+              imageObserver.unobserve(img);
+            }
+          });
+        });
+        images.forEach(img => imageObserver.observe(img));
+      });
+    </script>
   </body>
 </html>
