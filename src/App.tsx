@@ -11,6 +11,8 @@ import { StructuredData } from "./components/StructuredData";
 import { FAQSchema } from "./components/FAQSchema";
 import { BreadcrumbSchema } from "./components/BreadcrumbSchema";
 import { ArticleSchema } from "./components/ArticleSchema";
+import { ReviewSchema } from "./components/ReviewSchema";
+import { HowToSchema } from "./components/HowToSchema";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => (
       <FAQSchema />
       <BreadcrumbSchema />
       <ArticleSchema />
+      <ReviewSchema />
+      <HowToSchema />
       <HashRouter>
         <Routes>
           <Route path="/" element={<Index />} />

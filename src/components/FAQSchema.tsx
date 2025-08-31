@@ -42,6 +42,38 @@ export const FAQSchema = () => {
           "@type": "Answer",
           "text": "Kalen Life OS is available for $47 and includes lifetime access to all 25 modules, templates, and the complete life operating system."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the 25 Life OS components included?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Kalen Life OS includes Mindset & Identity Sculpting, Home & Household, Family, Social Circle, Personal & Business Finance, Character Development, Health, Travel, Mind Expansion, Entertainment, Content OS, Freelance OS, Product OS, Goal Setting & Alignment, Routine Builder, Habits Builder, Knowledge Management, Skill Builder, AI Prompts Builder, Tools & Resources, Personal & Business Growth, Adventure Zone, Alignment Zone, Review Cycles, and Life Insight Dashboard."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I get started with Kalen Life OS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "After purchase, you'll receive instant access to download the complete Notion template. Simply import it into your Notion workspace and start customizing the 25 modules to fit your specific life goals and needs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there customer support available?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, we provide comprehensive customer support and documentation to help you get the most out of your Kalen Life OS system. Our team is committed to your success."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use Kalen Life OS on mobile devices?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely! Since Kalen Life OS is built in Notion, you can access and use all 25 modules on any device - desktop, tablet, or mobile - through the Notion app or web browser."
+        }
       }
     ]
   };
