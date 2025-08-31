@@ -21,7 +21,7 @@ const PriceComparisonSection = () => {
     {
       item: "Wasted time & frustration",
       currentCost: "Priceless", 
-      lifeosCost: "Infinite"
+      lifeosCost: "Save 24 Hours per week"
     }
   ];
 
