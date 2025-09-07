@@ -12,33 +12,34 @@ const testimonials = [
     image: jamesParker,
     name: "James Parker",
     title: "Consultant, USA",
-    quote: "I tried PARA, GTD, and Second Brain — but they all felt like scattered tools. Kalen's Life OS is the first system that connects my daily tasks to my highest goals. Before, I was drowning in to-do lists. Now, every small action feels like a step toward the future I want. It's not just productivity, it's direction."
+    quote: "I replaced 14 apps and now save 12 hours every week with Life OS. Before, I was lost in too many tools. Now all my work connects to my main goals. It’s not just about being organised — it’s about building the future I want."
   },
   {
     image: ananyaSharma,
     name: "Ananya Sharma", 
     title: "Entrepreneur, India",
-    quote: "I always read self-help books but never managed to apply them. With Life OS, I finally see how my morning habits, weekly reviews, and big dreams tie together. I no longer feel like I'm living two lives — one for survival and one for dreams. Everything is aligned."
+    quote: "Life OS saved me 10 hours a week and replaced 18 tools. It brings my habits, reviews, and business plans into one place. I feel less stressed and more focused. Now I’m not just running my business — I’m building my dream life."
   },
   {
     image: liamMurphy,
     name: "Liam Murphy",
     title: "Freelancer, Ireland", 
-    quote: "GTD helped me capture tasks, but I still felt lost. PARA helped me organize, but I didn't stick with it. Life OS is different because it guides me toward who I want to become. I can literally see the connection between brushing up a skill today and my 5-year vision. That gave me consistency I never had before."
+    quote: "I was using 15 apps and wasting time. With Life OS, I got back 8 hours every week. It connects today’s small tasks with my 5-year goals. For the first time, I feel consistent and clear in both work and life."
   },
   {
     image: sophiaMiller,
     name: "Sophia Miller",
     title: "Educator, Canada",
-    quote: "For years, I felt like I was achieving random things without purpose. With Life OS, my work, health, and even relationships now point in the same direction. It's like I finally stitched my life together into one story instead of scattered chapters."
+    quote: "I spent 10 hours a week managing 12 apps and still felt confused. Life OS put my work, health, and family goals in one system. Now my life feels like one clear story instead of random parts."
   },
   {
     image: omarAlHassan,
     name: "Omar Al-Hassan", 
     title: "Startup Founder, UAE",
-    quote: "Most systems felt like more work on top of my work. Life OS feels like the opposite — it makes life easier because it aligns everything. My tasks, my projects, my finances, even my downtime all support the bigger picture of who I want to be. That shift gave me clarity and peace I didn't know I was missing."
+    quote: "Life OS replaced 20 tools and saved me 15 hours every week. It makes work simple instead of harder. My tasks, money, and even free time now match the life I want. I finally have both clarity and peace."
   }
 ];
+
 
 const TestimonialsSection = () => {
   return (
