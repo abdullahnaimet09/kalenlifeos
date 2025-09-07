@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalen Life OS - Social Preview Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 1200px;
+            height: 630px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            text-align: center;
+            color: white;
+            padding: 60px;
+            max-width: 1000px;
+        }
+        
+        .logo-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .logo-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            letter-spacing: -1px;
+        }
+        
+        .tagline {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            line-height: 1.3;
+        }
+        
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.15);
+            padding: 20px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            min-width: 100px;
+        }
+        
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .url {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: 500;
+            opacity: 0.8;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+        
+        .notion-badge {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            background: rgba(255,255,255,0.95);
+            color: #000;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="accent"></div>
+    <div class="notion-badge">Powered by Notion</div>
+    
+    <div class="container">
+        <div class="logo-container">
+            <img src="/lovable-uploads/logo.png" alt="Kalen Life OS Logo" class="logo-image">
+        </div>
+        
+        <div class="title">Build Your Ideal Life</div>
+        <div class="tagline">Leverage Notion's most powerful Life Operating System<br>to build your ideal life with Pillars, Pipelines & Vaults®</div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-title">Pillars</div>
+                <div class="feature-desc">Life Foundation</div>
+            </div>
+            <div class="feature">
+                <div class="feature-title">Pipelines</div>
+                <div class="feature-desc">Workflow Systems</div>
+            </div>
+            <div class="feature">
+                <div class="feature-title">Vaults</div>
+                <div class="feature-desc">Knowledge Base</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="url">www.kalenlifeos.app</div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://kalenlifeos.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
